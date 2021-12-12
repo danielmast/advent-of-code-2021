@@ -1,0 +1,4 @@
+Split code in separate functions
+Automatically determine length by input file
+Abstract away list operations by using classes
+Replace for loops by functional code

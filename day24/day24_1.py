@@ -48,8 +48,62 @@ def find_largest_model_number(program):
     return get_largest_input(memo)
 
 
+def recursive(program, subprograms, input_thus_far, z_range):
+    if len(input_thus_far) == 14:
+        state = run(program, input_thus_far)
+        if state['z'] == 0:
+            print(input_thus_far)
+            return input_thus_far
+        else:
+            return None
+
+    sp = 13 - len(input_thus_far)
+    if sp < 0 or sp >= len(subprograms):
+        print('sp', sp, 'input_thus_far', input_thus_far, 'z_range', z_range)
+
+    subprogram = subprograms[sp]
+    for w_rev in range(1, 10):
+        w = 10 - w_rev
+        if sp == 0:
+            new_z_range = [0]
+        else:
+            new_z_range = get_z_range_rec(subprogram, w, z_range)
+        if len(new_z_range) > 0:
+            result = recursive(program, subprograms, str(w) + input_thus_far, new_z_range)
+            if result is not None:
+                return result
+    return None
+
+
+def find_largest_model_number_recursive(program):
+    subprograms = get_subprograms(program)
+    return recursive(program, subprograms, '', [0])
+
+
 def get_z_range(subprogram, sp, w, memo):
     z_range = memo[sp + 1].keys()
+    early_addition = int(subprogram[5][2])
+    addition = int(subprogram[15][2])
+    filtered = []
+
+    if int(subprogram[4][2]) == 1:
+        for z in z_range:
+            if (z - w - addition) % 26 == 0:
+                filtered.append(int((z - w - addition) / 26))
+    else:
+        for z in z_range:
+            if not z * 26 + w - early_addition in filtered:
+                filtered.append(z * 26 + w - early_addition)
+            if (z - w - addition) % 26 == 0:
+                for a in range(0, 26):
+                    q = int((z - w - addition) / 26) * 26 + a
+                    if not q in filtered:
+                        filtered.append(q)
+
+    return filtered
+
+
+def get_z_range_rec(subprogram, w, z_range):
     early_addition = int(subprogram[5][2])
     addition = int(subprogram[15][2])
     filtered = []
